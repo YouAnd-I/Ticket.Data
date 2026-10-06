@@ -100,7 +100,7 @@ public partial struct TicketReported
     public TicketView View;
 }
 
-// World → laya adapter: the system asks for a priority classification.
+// World → classifier adapter: the system asks for a priority classification.
 // Emitted as a component; delivered through IWorldClient.Subscribe.
 public partial struct PriorityClassifyRequested
 {
@@ -108,7 +108,7 @@ public partial struct PriorityClassifyRequested
     public string Text;
 }
 
-// laya adapter → world: the classification result. Offline = the classifier
+// classifier adapter → world: the classification result. Offline = the classifier
 // could not be reached (the system then defaults to urgent).
 public partial struct PriorityClassified
 {

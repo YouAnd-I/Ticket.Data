@@ -94,9 +94,10 @@ public partial struct PriorityClassifyRequested
     public string TicketId;
     public string Text;
 
-    // The editable categories to pick from, plus today's date — the model
-    // has no clock of its own, and availability is time-based.
-    public TicketCategory[] Categories;
+    // The editable urgency levels and the on-duty staff, plus today's date —
+    // the model has no clock of its own, and availability is time-based.
+    public PriorityOption[] Priorities;
+    public StaffMember[] AvailableStaff;
     public string NowUtc;
 }
 
@@ -104,7 +105,10 @@ public partial struct PriorityClassified
 {
     public string TicketId;
     public TicketPriority? Priority;
-    public string? Category;
+
+    // Discord user id of the staff member the model picked, null when it
+    // could not or would not choose.
+    public string? AssigneeStaffId;
     public bool Offline;
 }
 

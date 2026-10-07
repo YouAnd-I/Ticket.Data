@@ -5,9 +5,25 @@ namespace Ticket.Data;
 // A saved how-to for a solved ticket, offered back on similar new tickets.
 public sealed record TicketSolution(string Title, string? Text, string? Image);
 
-// One editable classification: the classifier picks from these, and skills
-// reference them. Description is the classifier guidance, written in the sheet.
-public sealed record TicketCategory(string Slug, string Description);
+// One urgency level. Description is the classifier guidance for that level,
+// written in the sheet — the model reads it to pick.
+public sealed record PriorityOption(string Code, string Description);
+
+// The out-of-the-box urgency guidance: seeded into Postgres once, and used
+// directly whenever the store offers no priorities of its own.
+public static class PriorityGuidance
+{
+    public static readonly IReadOnlyList<PriorityOption> Defaults =
+    [
+        new("urgent", "Something is broken, failing, or blocking the user right now"),
+        new("no-rush", "A question or a request that can wait; nothing is failing"),
+        new("report", "The user reports something that needs investigating or documenting, not an immediate fix"),
+    ];
+}
+
+// One IT staff member who is on duty right now. Handles is free text the
+// classifier reads ("wifi, VPN, anything printing"), written in the sheet.
+public sealed record StaffMember(string StaffId, string Name, string Handles);
 
 // Who should be told about a ticket right now: plain Discord user ids, empty
 // when nobody is reachable.
@@ -35,12 +51,16 @@ public interface ITicketStore
     // Best how-to whose title/text mentions words from the query, if any.
     TicketSolution? BestSolution(string? query);
 
-    // The editable categories (sheet-managed in Postgres; empty for files).
-    IReadOnlyList<TicketCategory> Categories();
+    // The editable urgency levels (sheet-managed in Postgres; empty for files).
+    IReadOnlyList<PriorityOption> Priorities();
 
-    // Who is reachable for a ticket of this category at this moment:
-    // specialists for the category first, then anyone active and not absent.
-    TicketRoute Route(string? categorySlug, DateTimeOffset nowUtc);
+    // Staff who are active and not absent at this moment, with their
+    // sheet-written handles text — offered to the classifier as choices.
+    IReadOnlyList<StaffMember> AvailableStaff(DateTimeOffset nowUtc);
+
+    // Fallback for when the classifier is offline or picked nobody: any
+    // staff member on duty, most senior id first.
+    TicketRoute Route(DateTimeOffset nowUtc);
 
     void AppendStatus(string user, string id, string status);
 

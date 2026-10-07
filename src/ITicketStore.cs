@@ -5,6 +5,17 @@ namespace Ticket.Data;
 // A saved how-to for a solved ticket, offered back on similar new tickets.
 public sealed record TicketSolution(string Title, string? Text, string? Image);
 
+// One editable classification: the classifier picks from these, and skills
+// reference them. Description is the classifier guidance, written in the sheet.
+public sealed record TicketCategory(string Slug, string Description);
+
+// Who should be told about a ticket right now: plain Discord user ids, empty
+// when nobody is reachable.
+public sealed record TicketRoute(IReadOnlyList<ulong> StaffIds)
+{
+    public static readonly TicketRoute None = new([]);
+}
+
 // Where the ticket feature keeps its state. The system writes through this
 // from inside the tick, and the composition root picks the implementation:
 // files on disk (TicketStore in Ticket.System.Frent, the default) or Postgres
@@ -23,6 +34,13 @@ public interface ITicketStore
 
     // Best how-to whose title/text mentions words from the query, if any.
     TicketSolution? BestSolution(string? query);
+
+    // The editable categories (sheet-managed in Postgres; empty for files).
+    IReadOnlyList<TicketCategory> Categories();
+
+    // Who is reachable for a ticket of this category at this moment:
+    // specialists for the category first, then anyone active and not absent.
+    TicketRoute Route(string? categorySlug, DateTimeOffset nowUtc);
 
     void AppendStatus(string user, string id, string status);
 

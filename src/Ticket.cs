@@ -93,12 +93,18 @@ public partial struct PriorityClassifyRequested
 {
     public string TicketId;
     public string Text;
+
+    // The editable categories to pick from, plus today's date — the model
+    // has no clock of its own, and availability is time-based.
+    public TicketCategory[] Categories;
+    public string NowUtc;
 }
 
 public partial struct PriorityClassified
 {
     public string TicketId;
     public TicketPriority? Priority;
+    public string? Category;
     public bool Offline;
 }
 

@@ -17,7 +17,6 @@ public static class PriorityGuidance
     [
         new("urgent", "Something is broken, failing, or blocking the user right now"),
         new("no-rush", "A question or a request that can wait; nothing is failing"),
-        new("report", "The user reports something that needs investigating or documenting, not an immediate fix"),
     ];
 }
 

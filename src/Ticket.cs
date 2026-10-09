@@ -5,7 +5,6 @@ public enum TicketPriority
     Auto,
     Urgent,
     NoRush,
-    Report,
 }
 
 public partial struct TicketRecord
